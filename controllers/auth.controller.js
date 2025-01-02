@@ -1,4 +1,5 @@
-const bcrypt = require("bcrypt");
+require("dotenv").config();
+const bcrypt = require("bcryptjs");
 const url = require("url");
 
 const { createToken, decodeToken } = require("../utils/tokenizer");
