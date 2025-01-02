@@ -19,6 +19,6 @@ app.use("/uploads", express.static("uploads"));
 MongoDatabase.init();
 ChatWebsocket.initWebsocket();
 
-app.listen(3000, () => {
-  console.log(`Server Started at ${3000}`);
+app.listen(5000, () => {
+  console.log(`Server Started at ${5000}`);
 });
