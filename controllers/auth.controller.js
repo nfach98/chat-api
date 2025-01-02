@@ -59,7 +59,7 @@ class AuthController {
     try {
       const token = req.header("authorization").split(" ")[1];
       const id = decodeToken(token);
-      const fullUrl = req.protocol + "://" + req.get("host") + "/uploads/";
+      // const fullUrl = req.protocol + "://" + req.get("host") + "/uploads/";
       const user = await User.findById(id, {
         name: 1,
         email: 1,
@@ -68,10 +68,6 @@ class AuthController {
       });
 
       if (user != null) {
-        // const picture = user.picture;
-        // if (picture != null) {
-        //   user.picture = fullUrl + picture;
-        // }
         res.status(200).json(user);
       } else {
         res.status(400).json({ message: "User not found" });
