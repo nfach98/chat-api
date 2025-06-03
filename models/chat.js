@@ -1,18 +1,30 @@
 const mongoose = require("mongoose");
 
-const dataSchema = new mongoose.Schema({
-  message: {
-    required: true,
-    type: String,
+const Schema = mongoose.Schema;
+
+const dataSchema = new Schema(
+  {
+    message: {
+      required: true,
+      type: String,
+    },
+    room: {
+      required: true,
+      type: Schema.Types.ObjectId,
+      ref: "Room",
+    },
+    sentBy: {
+      required: true,
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+    isSelf: Boolean,
   },
-  room: {
-    required: true,
-    type: String,
-  },
-  user: {
-    required: true,
-    type: String,
-  },
-});
+  { timestamps: true, versionKey: false }
+);
 
 module.exports = mongoose.model("Chat", dataSchema);

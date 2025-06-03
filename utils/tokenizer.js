@@ -10,7 +10,7 @@ function decodeToken(token) {
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
     return decoded.id;
   } catch {
-    return "";
+    return null;
   }
 }
 

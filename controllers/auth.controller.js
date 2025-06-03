@@ -59,12 +59,11 @@ class AuthController {
     try {
       const token = req.header("authorization").split(" ")[1];
       const id = decodeToken(token);
-      // const fullUrl = req.protocol + "://" + req.get("host") + "/uploads/";
       const user = await User.findById(id, {
         name: 1,
         email: 1,
-        picture: 1,
-        _id: 0,
+        avatar: 1,
+        _id: 1,
       });
 
       if (user != null) {
@@ -73,7 +72,6 @@ class AuthController {
         res.status(400).json({ message: "User not found" });
       }
     } catch (error) {
-      console.log(error);
       res.status(400).json({ message: error.message });
     }
   }
@@ -91,7 +89,12 @@ class AuthController {
         return;
       }
 
-      const user = await User.findById(id_param, { name: 1, email: 1 });
+      const user = await User.findById(id_param, {
+        name: 1,
+        email: 1,
+        avatar: 1,
+        _id: 1,
+      });
 
       if (user != null) {
         res.status(200).json(user);

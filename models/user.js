@@ -14,9 +14,7 @@ const schema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  picture: {
-    type: String,
-  },
+  avatar: String,
 });
 
 schema.methods.generateHash = (password) => {

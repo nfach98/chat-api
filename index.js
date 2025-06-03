@@ -17,7 +17,7 @@ app.use("/file", fileRouter);
 app.use("/uploads", express.static("uploads"));
 
 MongoDatabase.init();
-ChatWebsocket.initWebsocket();
+ChatWebsocket.init();
 
 app.listen(3000, () => {
   console.log(`Server Started at ${3000}`);
