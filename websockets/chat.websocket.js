@@ -2,9 +2,9 @@ const url = require("url");
 const { WebSocketServer } = require("ws");
 
 const { decodeToken } = require("../utils/tokenizer");
-const Room = require("../models/room");
-const Chat = require("../models/chat");
-const Online = require("../models/online");
+const ChatService = require("../services/chat.service");
+const OnlineRepository = require("../repositories/online.repository");
+const RoomRepository = require("../repositories/room.repository");
 
 const sockserver = new WebSocketServer({ port: 443, path: "/chat" });
 
@@ -13,45 +13,51 @@ class ChatWebsocket {
     sockserver.on("connection", async (ws, req) => {
       const parameters = url.parse(req.url, true);
       const token = parameters.query.token;
-      const idUser = decodeToken(token);
+      const userId = decodeToken(token);
 
-      if (idUser) {
-        ws.id = idUser;
+      if (userId) {
+        ws.id = userId;
 
-        await Online.replaceOne(
-          { user: idUser },
-          { isOnline: true, user: idUser },
-          { upsert: true }
-        );
+        // Set user as online
+        await OnlineRepository.upsertUserStatus(userId, true);
 
         ws.on("message", async (message) => {
-          const idRoom = parameters.query.room;
+          try {
+            const roomId = parameters.query.room;
 
-          const chat = new Chat({
-            message: message,
-            sentBy: idUser,
-            room: idRoom,
-          });
+            // Save the chat message
+            const chatData = {
+              message: message,
+              sentBy: userId,
+              room: roomId,
+            };
 
-          const saved = await chat.save();
-          const room = await Room.findOneAndUpdate(
-            { _id: idRoom },
-            { subtitle: message }
-          );
+            const savedChat = await ChatService.saveMessage(chatData);
 
-          const users = room.users;
-          sockserver.clients.forEach((client) => {
-            if (users.includes(client.id) && client.id !== idUser) {
-              client.send(JSON.stringify(saved));
-            }
-          });
+            // Update room subtitle
+            await RoomRepository.updateById(roomId, { subtitle: message });
+
+            // Get room to find users
+            const room = await RoomRepository.findById(roomId);
+            const users = room.users;
+
+            // Send message to other users in the room
+            sockserver.clients.forEach((client) => {
+              if (users.includes(client.id) && client.id !== userId) {
+                client.send(JSON.stringify(savedChat));
+              }
+            });
+          } catch (error) {
+            console.error("Error handling message:", error);
+          }
         });
+
         ws.on("close", async () => {
-          await Online.replaceOne(
-            { user: idUser },
-            { isOnline: false, user: idUser },
-            { upsert: true }
-          );
+          try {
+            await OnlineRepository.upsertUserStatus(userId, false);
+          } catch (error) {
+            console.error("Error updating user offline status:", error);
+          }
         });
 
         ws.onerror = function () {

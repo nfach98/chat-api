@@ -1,15 +1,13 @@
-const { upload } = require("../utils/filer");
+const FileService = require("../services/file.service");
 
 class FileController {
   static async uploadFile(req, res) {
-    upload(req, res, function (err) {
-      console.log(req.file.filename);
-      if (err) {
-        res.status(400).json({ message: err });
-      } else {
-        res.status(200).json({ message: "Upload is successful" });
-      }
-    });
+    try {
+      const result = await FileService.uploadFile(req, res);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
   }
 }
 
