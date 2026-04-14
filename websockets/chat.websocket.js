@@ -6,10 +6,9 @@ const ChatService = require("../services/chat.service");
 const OnlineRepository = require("../repositories/online.repository");
 const RoomRepository = require("../repositories/room.repository");
 
-const sockserver = new WebSocketServer({ port: 443, path: "/chat" });
-
 class ChatWebsocket {
-  static async init() {
+  static async init(server) {
+    const sockserver = new WebSocketServer({ server, path: "/chat" });
     sockserver.on("connection", async (ws, req) => {
       const parameters = url.parse(req.url, true);
       const token = parameters.query.token;
