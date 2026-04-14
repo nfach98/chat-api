@@ -24,6 +24,27 @@ app.use("/uploads", express.static("uploads"));
 MongoDatabase.init();
 ChatWebsocket.init(server);
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Welcome to Chat Server API", status: "online" });
+});
+
+app.get("/health", (req, res) => {
+  const dbStatus = MongoDatabase.getStatus();
+  const dbStateMap = {
+    0: "disconnected",
+    1: "connected",
+    2: "connecting",
+    3: "disconnecting"
+  };
+  
+  res.status(200).json({
+    status: "UP",
+    server: "running",
+    database: dbStateMap[dbStatus] || "unknown",
+    timestamp: new Date().toISOString()
+  });
+});
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, "0.0.0.0", () => {

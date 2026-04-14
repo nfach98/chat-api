@@ -15,6 +15,10 @@ class MongoDatabase {
       console.log("Database Connected");
     });
   }
+
+  static getStatus() {
+    return mongoose.connection.readyState;
+  }
 }
 
 module.exports = MongoDatabase;
