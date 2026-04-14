@@ -2,7 +2,18 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 const mongoString = process.env.DATABASE_URL;
-mongoose.connect(mongoString);
+
+const options = {
+  autoIndex: true,
+};
+
+if (process.env.MONGO_USER && process.env.MONGO_PASS) {
+  options.user = process.env.MONGO_USER;
+  options.pass = process.env.MONGO_PASS;
+  options.authSource = process.env.MONGO_AUTH_SOURCE || "admin";
+}
+
+mongoose.connect(mongoString, options);
 const database = mongoose.connection;
 
 class MongoDatabase {
