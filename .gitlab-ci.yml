@@ -1,0 +1,16 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: debian:bullseye
+  before_script:
+    - apt-get update && apt-get install -y rsync openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H 184.174.33.2 >> ~/.ssh/known_hosts
+  script:
+    - rsync -avz --delete ./ root@184.174.33.2:/var/www/html/
+  only:
+    - main
